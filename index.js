@@ -1,25 +1,31 @@
-import inquirer from 'inquirer';
-import qr from "qr-image";
-import fs from "fs"
-inquirer
-  .prompt([{
-        message: "Type in your URL:",
-        name:"URL"
-    }])
-  .then((answers) => {
-    const url = answers.URL;
-    var qr_svg = qr.image(url);
-    qr_svg.pipe(require('fs').createWriteStream('qr_img.png'));
-  })
-  .catch((error) => {
-    if (error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
-    } else {
-      // Something else went wrong
-    }
-  });
-/* 
-1. Use the inquirer npm package to get user input.
-2. Use the qr-image npm package to turn the user entered URL into a QR code image.
-3. Create a txt file to save the user input using the native fs node module.
-*/
+import express from "express";
+const app = express();
+const port = 3000;
+
+
+app.get("/", (req, res) => {
+    res.send("<h1>Name Page</h1>");
+});
+
+app.post("/register", (req,res) => {
+    res.sendStatus(201);
+});
+
+app.put("/user/angela", (req, res) => {
+    res.sendStatus(200);
+});
+
+app.patch('/user/angela', (req, res) => {
+    res.sendStatus(200);
+});
+
+app.delete("/user/angela", (req, res) => {
+    res.sendStatus(200);
+});
+
+app.listen(port, () => {
+    console.log('server started on port 3000')
+});
+
+
+
