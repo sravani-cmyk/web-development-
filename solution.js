@@ -1,33 +1,38 @@
-import inquirer from "inquirer";
-import qr from "qr-image";
-import fs from "fs";
+import express from "express";
+import bodyParser from "body-parser";
 
-inquirer
-  .prompt([
-    {
-      message: "Type in your URL: ",
-      name: "URL",
-    },
-  ])
-  .then((answers) => {
-    const url = answers.URL;
-    var qr_svg = qr.image(url);
-    qr_svg.pipe(fs.createWriteStream("qr_img.png"));
+const app = express();
+const port = 3000;
 
-    fs.writeFile("URL.txt", url, (err) => {
-      if (err) throw err;
-      console.log("The file has been saved!");
-    });
-  })
-  .catch((error) => {
-    if (error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
-    } else {
-      // Something else went wrong
-    }
-  });
-/* 
-1. Use the inquirer npm package to get user input.
-2. Use the qr-image npm package to turn the user entered URL into a QR code image.
-3. Create a txt file to save the user input using the native fs node module.
-*/
+const recipeJSON =
+  '[{"id": "0001","type": "taco","name": "Chicken Taco","price": 2.99,"ingredients": {"protein": {"name": "Chicken","preparation": "Grilled"},  "salsa": {"name": "Tomato Salsa","spiciness": "Medium"},  "toppings": [{"name": "Lettuce",  "quantity": "1 cup",  "ingredients": ["Iceberg Lettuce"]  },      {"name": "Cheese",  "quantity": "1/2 cup",  "ingredients": ["Cheddar Cheese", "Monterey Jack Cheese"]  },      {"name": "Guacamole",  "quantity": "2 tablespoons",  "ingredients": ["Avocado", "Lime Juice", "Salt", "Onion", "Cilantro"]  },      {"name": "Sour Cream",  "quantity": "2 tablespoons",  "ingredients": ["Sour Cream"]  }      ]    }  },{"id": "0002","type": "taco","name": "Beef Taco","price": 3.49,"ingredients": {"protein": {"name": "Beef","preparation": "Seasoned and Grilled"},  "salsa": {"name": "Salsa Verde","spiciness": "Hot"},  "toppings": [{"name": "Onions",  "quantity": "1/4 cup",  "ingredients": ["White Onion", "Red Onion"]  },      {"name": "Cilantro",  "quantity": "2 tablespoons",  "ingredients": ["Fresh Cilantro"]  },      {"name": "Queso Fresco",  "quantity": "1/4 cup",  "ingredients": ["Queso Fresco"]  }      ]    }  },{"id": "0003","type": "taco","name": "Fish Taco","price": 4.99,"ingredients": {"protein": {"name": "Fish","preparation": "Battered and Fried"},  "salsa": {"name": "Chipotle Mayo","spiciness": "Mild"},  "toppings": [{"name": "Cabbage Slaw",  "quantity": "1 cup",  "ingredients": [    "Shredded Cabbage",    "Carrot",    "Mayonnaise",    "Lime Juice",    "Salt"          ]  },      {"name": "Pico de Gallo",  "quantity": "1/2 cup",  "ingredients": ["Tomato", "Onion", "Cilantro", "Lime Juice", "Salt"]  },      {"name": "Lime Crema",  "quantity": "2 tablespoons",  "ingredients": ["Sour Cream", "Lime Juice", "Salt"]  }      ]    }  }]';
+
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+let data;
+
+app.get("/", (req, res) => {
+  res.render("solution.ejs", { recipe: data });
+});
+
+app.post("/recipe", (req, res) => {
+  switch (req.body.choice) {
+    case "chicken":
+      data = JSON.parse(recipeJSON)[0];
+      break;
+    case "beef":
+      data = JSON.parse(recipeJSON)[1];
+      break;
+    case "fish":
+      data = JSON.parse(recipeJSON)[2];
+      break;
+    default:
+      break;
+  }
+  res.redirect("/");
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port: ${port}`);
+});
